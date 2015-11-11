@@ -1,3 +1,4 @@
+
 from flask import Flask, Response, render_template, request
 import json
 from subprocess import Popen, PIPE
@@ -56,11 +57,7 @@ def images_index():
     
     Complete the code below generating a valid response. 
     """
-   #first new line
-    if request.args.get('state')=='running':
-        output = docker('images')
-    else:
-        output = docker ('images', '-a')     
+    output = docker('images')    
     resp = json.dumps(docker_images_to_array(output))
     return Response(response=resp, mimetype="application/json")
 
@@ -81,14 +78,8 @@ def containers_log(id):
     Dump specific container logs
 
     """
-    
-    if request.args.get('state') == 'running':  
-       output = docker('logs',id)
-    else:
-       output = docker('logs',id)
-
-    resp = json.dumps(docker_logs_to_object(id,output))
-
+  #  output = docker('
+   # resp = 'json.dumps(docker_logs_to_object(id,output)
     return Response(response=resp, mimetype="application/json")
 
 
@@ -119,10 +110,8 @@ def containers_remove_all():
     Force remove all containers - dangrous!
 
     """
-    all = docker_ps_to_array(docker('ps', '-a'))
-    for i in all:
-        docker('rm', i['id'])
-    resp = '{"count": "%d"}' %len(all)
+    docker ('rm', '$(docker ps -a -q)')
+    resp = '{"This removes all the containers"}'
     return Response(response=resp, mimetype="application/json")
 
 @app.route('/images', methods=['DELETE'])
@@ -131,10 +120,8 @@ def images_remove_all():
     Force remove all images - dangrous!
 
     """
-    all = docker_images_to_array(docker('images'))
-    for i in all:
-        docker('rmi',i['id'])
-    resp = '{"count": "%d"}' %len(all) 
+    docker ('rm', '$(docker images -q)')
+    resp = '{"This removes all the images"}' 
     return Response(response=resp, mimetype="application/json")
 
 
@@ -151,12 +138,6 @@ def containers_create():
     body = request.get_json(force=True)
     image = body['image']
     args = ('run', '-d')
-    try:
-    
-      publish = body['publish']
-      args = args + ('-p', publish)
-    except:
-        pass
     id = docker(*(args + (image,)))[0:12]
     return Response(response='{"id": "%s"}' % id, mimetype="application/json")
 
@@ -184,15 +165,19 @@ def containers_update(id):
 
     curl -X PATCH -H 'Content-Type: application/json' http://localhost:8080/containers/b6cd8ea512c8 -d '{"state": "running"}'
     curl -X PATCH -H 'Content-Type: application/json' http://localhost:8080/containers/b6cd8ea512c8 -d '{"state": "stopped"}'
+
     """
     body = request.get_json(force=True)
     try:
         state = body['state']
         if state == 'running':
-            docker('stopped', id)
+            docker('restart', id)
     except:
+        state = body['state']
+        if state == 'stopping': 
+            docker('stop', id)
         pass
-   
+
     resp = '{"id": "%s"}' % id
     return Response(response=resp, mimetype="application/json")
 
@@ -204,8 +189,7 @@ def images_update(id):
     curl -s -X PATCH -H 'Content-Type: application/json' http://localhost:8080/images/7f2619ed1768 -d '{"tag": "test:1.0"}'
 
     """
-    docker ('tag', id ,'ok')
-    resp = '{"you have tagged id": "%s"}' % id
+    resp = ''
     return Response(response=resp, mimetype="application/json")
 
 
