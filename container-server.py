@@ -53,7 +53,8 @@ def containers_index():
 def images_index():
     """
     List all images 
-    
+     curl -s -X GET -H 'Accept: application/json' http://localhost:8080/images | python -mjson.tool
+
     Complete the code below generating a valid response. 
     """
    #first new line
@@ -69,6 +70,8 @@ def containers_show(id):
     """
     Inspect specific container
 
+    curl -s -X GET -H 'Accept: application/json' http://localhost:8080/containers/1cadf584369d | python -mjson.tool
+
     """
     output = docker('Inspect', id) 
     resp = json.dumps(docker_Inspect_to_array(output))
@@ -79,6 +82,7 @@ def containers_show(id):
 def containers_log(id):
     """
     Dump specific container logs
+       curl -s -X GET -H 'Accept: application/json' http://localhost:8080/containers/1cadf584369d/logs
 
     """
     
@@ -106,6 +110,9 @@ def images_remove(id):
 @app.route('/containers/<id>', methods=['DELETE'])
 def containers_remove(id):
     """
+    curl -s -X DELETE -H 'Accept: application/json' http://127.0.0.1:8080/containers/<id>
+    """
+    """
     Delete a specific container - must be already stopped/killed
 
     """
@@ -117,6 +124,7 @@ def containers_remove(id):
 def containers_remove_all():
     """
     Force remove all containers - dangrous!
+    curl -s -X DELETE -H 'Accept: application/json' http://127.0.0.1:8080/containers
 
     """
     all = docker_ps_to_array(docker('ps', '-a'))
@@ -129,6 +137,7 @@ def containers_remove_all():
 def images_remove_all():
     """
     Force remove all images - dangrous!
+    curl -s -X DELETE -H 'Accept: application/json' http://127.0.0.1:8080/images
 
     """
     all = docker_images_to_array(docker('images'))
